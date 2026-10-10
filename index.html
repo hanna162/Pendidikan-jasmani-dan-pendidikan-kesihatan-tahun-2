@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PJPK Tahun 2 Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        .bounce { animation: bounce 1s infinite; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+            50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+        }
+        .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
+        }
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .hidden { display: none !important; }
+        .btn {
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Game specific styles */
+        .drop-zone {
+            border: 3px dashed #cbd5e1;
+            transition: all 0.3s;
+        }
+        .drop-zone.active { border-color: #3b82f6; background-color: #eff6ff; }
+        .draggable { cursor: grab; }
+        .draggable:active { cursor: grabbing; }
+        
+        /* Modal */
+        #customModal { z-index: 50; }
+        
+        .illustration {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            background-color: #e2e8f0;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen w-full overflow-hidden flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="backBtn" class="hidden bg-blue-500 hover:bg-blue-700 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center transition" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 id="headerTitle" class="text-xl md:text-2xl font-black tracking-wide">PJPK Tahun 2</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full font-bold shadow-inner flex items-center gap-1 cursor-pointer" onclick="showView('reportView')">
+                <i class="fas fa-star text-yellow-100"></i> <span id="starCount">0</span>
+            </div>
+            <button class="bg-blue-800 p-2 rounded-full" onclick="showView('menuView'); state.history=[]">
+                <i class="fas fa-home"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="mainContainer" class="flex-1 overflow-y-auto p-4 md:p-8 relative bg-cover bg-center" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%2393c5fd\' fill-opacity=\'0.2\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+        
+        <!-- View: Main Menu -->
+        <div id="menuView" class="max-w-4xl mx-auto flex flex-col gap-6">
+            <div class="text-center mb-4">
+                <h2 class="text-3xl md:text-5xl font-black text-blue-800 drop-shadow-sm mb-2">Jom Belajar PJPK!</h2>
+                <p class="text-lg text-blue-600 font-bold">Pilih aktiviti di bawah untuk bermula</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button onclick="openSubject('PJ')" class="btn bg-gradient-to-br from-green-400 to-green-600 text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-4 hover:scale-105">
+                    <div class="bg-white/20 p-4 rounded-full w-24 h-24 flex items-center justify-center text-5xl">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold">Pendidikan Jasmani</h3>
+                    <p class="text-green-100 text-sm">Kemahiran & Kecergasan</p>
+                </button>
+                
+                <button onclick="openSubject('PK')" class="btn bg-gradient-to-br from-pink-400 to-pink-600 text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-4 hover:scale-105">
+                    <div class="bg-white/20 p-4 rounded-full w-24 h-24 flex items-center justify-center text-5xl">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold">Pendidikan Kesihatan</h3>
+                    <p class="text-pink-100 text-sm">Gaya Hidup Sihat & Selamat</p>
+                </button>
+
+                <button onclick="openExams()" class="btn bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-4 hover:scale-105">
+                    <div class="bg-white/20 p-4 rounded-full w-24 h-24 flex items-center justify-center text-5xl">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold">Peperiksaan</h3>
+                    <p class="text-purple-100 text-sm">Uji Minda Khas (Set 1 & 2)</p>
+                </button>
+
+                <button onclick="showView('reportView')" class="btn bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-4 hover:scale-105">
+                    <div class="bg-white/20 p-4 rounded-full w-24 h-24 flex items-center justify-center text-5xl">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold">Rekod Pencapaian</h3>
+                    <p class="text-orange-100 text-sm">Lihat Bintang & Lencana</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- View: Subject Units List -->
+        <div id="subjectView" class="hidden max-w-4xl mx-auto">
+            <h2 id="subjectTitle" class="text-3xl font-black text-center mb-6 text-blue-800"></h2>
+            <div id="unitsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Units injected here -->
+            </div>
+        </div>
+
+        <!-- View: Unit Details (Latihan & Permainan) -->
+        <div id="unitDetailView" class="hidden max-w-2xl mx-auto">
+            <div class="glass-panel rounded-3xl p-8 text-center shadow-lg">
+                <div id="unitDetailIcon" class="text-6xl text-blue-500 mb-4"></div>
+                <h2 id="unitDetailTitle" class="text-3xl font-black text-slate-800 mb-2"></h2>
+                <p id="unitDetailDesc" class="text-slate-600 font-bold mb-8"></p>
+                
+                <div class="flex flex-col gap-4">
+                    <button onclick="startQuiz()" class="btn bg-blue-500 text-white rounded-xl py-4 px-6 text-xl font-bold flex items-center justify-center gap-3">
+                        <i class="fas fa-question-circle"></i> Mula Latihan (15 Soalan)
+                    </button>
+                    <button onclick="startGame()" class="btn bg-green-500 text-white rounded-xl py-4 px-6 text-xl font-bold flex items-center justify-center gap-3">
+                        <i class="fas fa-gamepad"></i> Permainan Interaktif
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Quiz / Exam Interface -->
+        <div id="quizView" class="hidden max-w-3xl mx-auto">
+            <div class="flex justify-between items-center mb-4">
+                <div class="bg-white px-4 py-2 rounded-full font-bold text-blue-700 shadow">
+                    Soalan <span id="qCurrent">1</span> / <span id="qTotal">15</span>
+                </div>
+                <div id="examTimerContainer" class="hidden bg-red-100 px-4 py-2 rounded-full font-bold text-red-700 shadow flex items-center gap-2">
+                    <i class="fas fa-clock"></i> <span id="examTimer">30:00</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-xl">
+                <div id="qIllustration" class="illustration hidden"></div>
+                <h3 id="qText" class="text-xl md:text-2xl font-bold text-slate-800 mb-6 leading-relaxed"></h3>
+                
+                <div id="qOptions" class="flex flex-col gap-3">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Quiz Results -->
+        <div id="resultView" class="hidden max-w-2xl mx-auto">
+            <div class="glass-panel rounded-3xl p-8 text-center shadow-xl pop-in">
+                <div id="resultIcon" class="text-7xl mb-4"></div>
+                <h2 id="resultTitle" class="text-3xl font-black mb-2"></h2>
+                <p class="text-xl font-bold text-slate-600 mb-6">Markah: <span id="resultScore" class="text-blue-600 text-3xl"></span></p>
+                
+                <div id="resultReward" class="hidden bg-yellow-100 border-2 border-yellow-400 rounded-xl p-4 mb-8">
+                    <i class="fas fa-star text-3xl text-yellow-500 bounce inline-block mb-2"></i>
+                    <p class="font-bold text-yellow-800">Tahniah! Anda mendapat <span id="rewardStars"></span> bintang!</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="showView('menuView'); state.history=[]" class="btn bg-slate-200 text-slate-800 font-bold py-3 px-6 rounded-xl">Menu Utama</button>
+                    <button id="retryBtn" onclick="startQuiz()" class="btn bg-blue-500 text-white font-bold py-3 px-6 rounded-xl">Cuba Lagi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Interactive Game (Tap to Match) -->
+        <div id="interactiveGameView" class="hidden max-w-4xl mx-auto">
+            <div class="bg-white rounded-3xl p-6 shadow-xl text-center">
+                <h2 id="gameTitle" class="text-2xl font-black text-blue-800 mb-2"></h2>
+                <p id="gameInstructions" class="font-bold text-slate-600 mb-6"></p>
+                
+                <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
+                    <!-- Source Items -->
+                    <div id="gameItems" class="flex flex-wrap gap-4 justify-center md:w-1/2">
+                        <!-- Items injected here -->
+                    </div>
+                    
+                    <!-- Targets -->
+                    <div id="gameTargets" class="flex flex-col gap-4 md:w-1/2 w-full">
+                        <!-- Targets injected here -->
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center hidden" id="gameComplete">
+                    <h3 class="text-2xl font-bold text-green-500 mb-4">Syabas! Anda Berjaya!</h3>
+                    <button onclick="goBack()" class="btn bg-blue-500 text-white font-bold py-3 px-8 rounded-xl">Tamat Permainan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Report Card -->
+        <div id="reportView" class="hidden max-w-3xl mx-auto">
+            <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-lg">
+                <h2 class="text-3xl font-black text-center text-blue-800 mb-8"><i class="fas fa-chart-line mr-2"></i>Rekod Pencapaian</h2>
+                
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-yellow-50 rounded-2xl p-6 text-center border-2 border-yellow-200">
+                        <i class="fas fa-star text-4xl text-yellow-500 mb-2"></i>
+                        <div class="text-3xl font-black text-yellow-700" id="totalStarsReport">0</div>
+                        <div class="font-bold text-yellow-800 text-sm">Jumlah Bintang</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-2xl p-6 text-center border-2 border-blue-200">
+                        <i class="fas fa-check-circle text-4xl text-blue-500 mb-2"></i>
+                        <div class="text-3xl font-black text-blue-700" id="completedModules">0</div>
+                        <div class="font-bold text-blue-800 text-sm">Modul Selesai</div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-slate-700 mb-4 border-b-2 pb-2">Lencana Terkumpul</h3>
+                <div id="badgesGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
+                    <!-- Badges injected here via JS -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full text-center shadow-2xl pop-in">
+            <div id="modalIcon" class="text-5xl mb-4"></div>
+            <h3 id="modalTitle" class="text-2xl font-black mb-2 text-slate-800"></h3>
+            <p id="modalMessage" class="text-slate-600 font-bold mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATABASE & CONTENT ---
+        const PJPK_DATA = {
+            units: [
+                // Pendidikan Jasmani (PJ)
+                { id: "pj1", type: "PJ", title: "Unit 1: Cabaran Ruang", icon: "fa-arrows-alt", desc: "Konsep teroka ruang dan bergerak ikut tempo." },
+                { id: "pj2", type: "PJ", title: "Unit 2: Mari Bersenam", icon: "fa-running", desc: "Pergerakan lokomotor, bukan lokomotor dan manipulasi alatan." },
+                { id: "pj3", type: "PJ", title: "Unit 3: Senamrobik", icon: "fa-music", desc: "Pergerakan berirama dengan muzik dan alatan/prop." },
+                { id: "pj4", type: "PJ", title: "Unit 4: Sarkas", icon: "fa-child", desc: "Gimnastik asas, imbangan stabil, dan gulingan." },
+                { id: "pj5", type: "PJ", title: "Unit 5: Pantas Berenang", icon: "fa-swimmer", desc: "Kemahiran asas akuatik, apungan, dan tendangan keribas." },
+                { id: "pj6", type: "PJ", title: "Unit 6: Santai Ria", icon: "fa-map-signs", desc: "Permainan rekreasi teng-teng, galah panjang, dan menjejak." },
+                { id: "pj7", type: "PJ", title: "Unit 7: Semangat Membara", icon: "fa-heartbeat", desc: "Memanaskan & menyejukkan badan, serta kadar nadi." },
+                { id: "pj8", type: "PJ", title: "Unit 8: Larian Cergas", icon: "fa-dumbbell", desc: "Kecergasan, regangan, kekuatan otot, dan komposisi badan." },
+                // Pendidikan Kesihatan (PK)
+                { id: "pk9", type: "PK", title: "Unit 9: Hari Yang Ceria", icon: "fa-smile-beam", desc: "Postur, rehat, sentuhan, rokok, dadah, emosi & penyakit berjangkit." },
+                { id: "pk10", type: "PK", title: "Unit 10: Bahaya Menanti", icon: "fa-apple-alt", desc: "Waktu makan, pemakanan sihat, dan pengaruh iklan." },
+                { id: "pk11", type: "PK", title: "Unit 11: Awas, Berhati-hati", icon: "fa-ambulance", desc: "Kemalangan, kecederaan, dan cara meminta bantuan." }
+            ]
+        };
+
+        /* 
+           QUESTION BANK
+           Format: q: "Question", o: ["Opt1", "Opt2", "Opt3"], a: CorrectIndex, img (optional fontawesome icon) 
+           Requirement: EXACTLY 15 questions per unit based strictly on the textbook.
+        */
+        const QUESTIONS = {
+            // PJ Unit 1
+            pj1: [
+                { q: "Apakah yang dimaksudkan dengan bergerak di dalam ruang sempit?", o: ["Berlari bebas di padang", "Bergerak dengan merendahkan badan melepasi halangan", "Melompat tinggi di udara"], a: 1, img: "fa-compress-arrows-alt" },
+                { q: "Ketika menyusup di bawah halangan, postur badan mestilah...", o: ["Ditegakkan", "Diluruskan ke atas", "Direndahkan"], a: 2 },
+                { q: "Zarith bergerak menggunakan tangan dan lutut. Pergerakan ini dikenali sebagai...", o: ["Merangkak", "Melompat", "Menyusup"], a: 0 },
+                { q: "Apakah tindakan yang perlu diambil untuk bergerak pada tempo laju?", o: ["Bergerak dengan perlahan", "Bergerak dengan pantas", "Berdiri tegak"], a: 1, img: "fa-tachometer-alt" },
+                { q: "Jika muzik dimainkan dengan tempo perlahan, kita mestilah...", o: ["Bergerak pantas", "Bergerak perlahan", "Berhenti bergerak"], a: 1 },
+                { q: "Pergerakan kura-kura sesuai dikaitkan dengan tempo...", o: ["Sederhana", "Laju", "Perlahan"], a: 2 },
+                { q: "Pergerakan kuda berlari sesuai dikaitkan dengan tempo...", o: ["Laju", "Perlahan", "Sederhana"], a: 0 },
+                { q: "Antara berikut, yang manakah aktiviti bergerak dalam ruang?", o: ["Turun naik tangga", "Duduk bersila membaca buku", "Tidur di atas katil"], a: 0 },
+                { q: "Semasa turun dan naik tangga, kita mesti berhati-hati untuk...", o: ["Cepat sampai", "Mengelakkan kecederaan", "Menjadi juara"], a: 1, img: "fa-exclamation-triangle" },
+                { q: "Bagaimanakah cara untuk meningkatkan kelajuan pergerakan?", o: ["Melangkah dengan lebih cepat dan kuat", "Duduk diam", "Menutup mata"], a: 0 },
+                { q: "Aktiviti menyusup dan merangkak menguji kemahiran kita di dalam ruang...", o: ["Luas", "Tinggi", "Sempit"], a: 2 },
+                { q: "Manakah antara berikut TIDAK mengikut tempo?", o: ["Berjalan laju semasa tempo laju", "Merangkak lambat semasa tempo perlahan", "Berlari pantas semasa tempo perlahan"], a: 2 },
+                { q: "Mengapa kita perlu mematuhi arahan guru semasa aktiviti teroka ruang?", o: ["Untuk keselamatan", "Supaya cepat siap", "Untuk menyusahkan kita"], a: 0 },
+                { q: "Bolehkah kita bergerak secara zig-zag dalam ruang yang luas?", o: ["Tidak boleh", "Boleh", "Hanya jika disuruh"], a: 1 },
+                { q: "Tempo sederhana bermaksud pergerakan yang...", o: ["Terlalu laju", "Tidak terlalu laju dan tidak terlalu perlahan", "Sangat perlahan seperti siput"], a: 1 }
+            ],
+            // PJ Unit 2
+            pj2: [
+                { q: "Apakah yang dimaksudkan dengan pergerakan lokomotor?", o: ["Bergerak dari satu tempat ke tempat lain", "Bergerak di tempat yang sama", "Duduk tanpa bergerak"], a: 0, img: "fa-running" },
+                { q: "Antara berikut, manakah contoh pergerakan lokomotor?", o: ["Membongkok", "Mencongklang", "Mengilas"], a: 1 },
+                { q: "Pergerakan bukan lokomotor bermaksud...", o: ["Bergerak pantas ke hadapan", "Pergerakan tanpa beralih tempat", "Melompat jauh"], a: 1 },
+                { q: "Manakah antara berikut ialah pergerakan bukan lokomotor?", o: ["Berlari", "Berskip", "Membongkok"], a: 2 },
+                { q: "Ketika mendarat selepas melompat, kita mesti _____ untuk mengelakkan kecederaan.", o: ["Meluruskan lutut", "Fleksi (bengkokkan) lutut", "Menutup mata"], a: 1 },
+                { q: "Ganesan melakukan lompat jauh berdiri. Dia mesti mendarat menggunakan...", o: ["Sebelah kaki", "Kedua-dua belah kaki", "Lutut"], a: 1, img: "fa-shoe-prints" },
+                { q: "Aktiviti 'Dirian Bangau' ialah contoh pergerakan...", o: ["Lokomotor", "Bukan lokomotor (Mengimbang)", "Membaling alatan"], a: 1 },
+                { q: "Jika kamu ingin melambung bola tinggi ke udara, tangan perlu...", o: ["Diluruskan ke bawah", "Diluruskan ke atas", "Disilang di dada"], a: 1 },
+                { q: "Untuk menggolek bola ke sasaran yang jauh, kamu perlu menggunakan...", o: ["Daya yang perlahan", "Kaki", "Daya (upaya) yang lebih kuat"], a: 2, img: "fa-bowling-ball" },
+                { q: "Bagaimanakah cara memperlahankan pergerakan bola ketika menangkap?", o: ["Tarik tangan ke arah badan semasa menangkap", "Tolak bola semula", "Tutup mata dan tangkap"], a: 0 },
+                { q: "Dalam permainan bola sepak, bahagian kaki manakah yang BOLEH digunakan untuk menendang bola?", o: ["Bahagian dalam, luar dan kekura kaki", "Tumit sahaja", "Lutut sahaja"], a: 0 },
+                { q: "Titik kontak untuk menendang bola secara leret (golek di tanah) yang tepat ialah pada bahagian...", o: ["Atas bola", "Tengah bola", "Bawah bola"], a: 1, img: "fa-futbol" },
+                { q: "Menyerkap bola bermaksud...", o: ["Menendang bola kuat", "Mengawal dan memberhentikan bola", "Membaling bola"], a: 1 },
+                { q: "Jika kita memukul belon ke udara, titik kontak pada belon mestilah pada bahagian...", o: ["Bawah belon", "Tengah belon", "Atas belon"], a: 0 },
+                { q: "Hazziq mengelecek bola menggunakan...", o: ["Kepala", "Tangan (kiri dan kanan)", "Siku"], a: 1 }
+            ],
+            // PJ Unit 3
+            pj3: [
+                { q: "Apakah alatan (prop) yang biasa digunakan dalam senamrobik atau pergerakan berirama?", o: ["Bola keranjang", "Kain, gelung, dan reben", "Raket badminton"], a: 1, img: "fa-ribbon" },
+                { q: "Dalam pergerakan berirama, kita mestilah bergerak mengikut...", o: ["Tempo muzik", "Tiupan angin", "Kiraan masa jam"], a: 0 },
+                { q: "Apabila tempo muzik laju, pergerakan kita mestilah...", o: ["Pantas", "Perlahan", "Berhenti"], a: 0, img: "fa-music" },
+                { q: "Apabila tempo muzik perlahan, pergerakan kita mestilah...", o: ["Pantas", "Sederhana", "Lambat/Perlahan"], a: 2 },
+                { q: "Apakah tujuan menggunakan gelung, reben atau kain dalam persembahan?", o: ["Sebagai senjata", "Untuk menjadikan pergerakan lebih kreatif dan menarik", "Untuk berehat"], a: 1 },
+                { q: "Semasa melakukan senamrobik, pergerakan manakah yang dikira lokomotor?", o: ["Mengayun reben setempat", "Berjalan berskip dalam bulatan", "Membongkok ke kiri dan kanan"], a: 1 },
+                { q: "Menghayun tangan menggunakan reben tanpa mengubah kedudukan kaki ialah pergerakan...", o: ["Lokomotor", "Gimnastik", "Bukan lokomotor"], a: 2 },
+                { q: "Mengapa kita perlu mencipta rangkaian pergerakan mengikut kumpulan?", o: ["Untuk tidur", "Untuk memupuk kerjasama dan kreativiti", "Untuk bermain berasingan"], a: 1 },
+                { q: "Senamrobik biasanya dilakukan bersempena dengan...", o: ["Hari Sukan Negara", "Hari Lahir", "Hari Raya"], a: 0 },
+                { q: "Jika Cikgu Chong memukul alatan dengan tempo sederhana, murid perlu bergerak...", o: ["Sangat laju", "Pada kelajuan sederhana", "Sangat lambat"], a: 1 },
+                { q: "Antara berikut, yang manakah prop yang paling sesuai digoyangkan (wave)?", o: ["Gelung", "Reben", "Kotak"], a: 1 },
+                { q: "Gabungan pergerakan lokomotor dan bukan lokomotor dengan muzik dinamakan...", o: ["Olahraga", "Pergerakan berirama", "Akuatik"], a: 1 },
+                { q: "Selain pergerakan yang betul, kita juga perlu menunjukkan ______ semasa persembahan berirama.", o: ["Muka masam", "Ekspresi gembira dan seronok", "Rasa takut"], a: 1 },
+                { q: "Bagaimanakah cara menggerakkan gelung secara bukan lokomotor?", o: ["Memusingkan gelung di pinggang di satu tempat", "Membawa gelung berlari", "Melompat melepasi gelung"], a: 0 },
+                { q: "Tujuan melakukan pergerakan berirama adalah untuk...", o: ["Meningkatkan kecergasan dan keseronokan", "Menjadikan kita letih", "Mengisi masa lapang sahaja"], a: 0 }
+            ],
+            // PJ Unit 4
+            pj4: [
+                { q: "Haiwan buaya bergerak secara...", o: ["Mendatar", "Menegak", "Berguling"], a: 0, img: "fa-water" },
+                { q: "Haiwan zirafah bergerak secara...", o: ["Mendatar", "Menegak (tinggi)", "Melompat"], a: 1 },
+                { q: "Dalam gimnastik, dirian bangau dengan satu kaki ialah contoh imbangan...", o: ["Songsang", "Statik dinamik", "Satu tapak sokongan"], a: 2 },
+                { q: "Imbangan songsang bermaksud...", o: ["Berdiri tegak", "Kepala di bawah, kaki di atas", "Duduk bersila"], a: 1, img: "fa-child" },
+                { q: "Semasa melakukan imbangan songsang, bahagian anggota badan manakah yang digunakan untuk menyokong badan?", o: ["Tangan dan kepala", "Kaki sahaja", "Perut sahaja"], a: 0 },
+                { q: "Sebelum melakukan aktiviti gulingan, apakah yang mesti dipastikan untuk keselamatan?", o: ["Kawasan berlapik dengan tikar/tilam", "Lantai licin", "Tidak memakai kasut"], a: 0, img: "fa-bed" },
+                { q: "Semasa melakukan guling sisi, bahagian manakah yang mesti menyentuh tikar terlebih dahulu?", o: ["Muka", "Bahagian belakang badan", "Lutut"], a: 1 },
+                { q: "Apakah posisi kepala yang betul semasa melakukan guling depan?", o: ["Dagu dirapatkan ke dada", "Dagu didongakkan ke atas", "Menoleh ke kiri"], a: 0 },
+                { q: "Dalam guling depan (straddle), bahagian manakah yang menyentuh tilam selepas tangan?", o: ["Kepala (ubun-ubun)", "Bahagian belakang bahu", "Punggung"], a: 1 },
+                { q: "Semasa mendarat selepas guling depan (straddle), kaki mestilah...", o: ["Dirapatkan", "Dibuka lebar", "Disilangkan"], a: 1 },
+                { q: "Guling belakang bermaksud badan digulingkan ke arah...", o: ["Hadapan", "Sisi", "Belakang"], a: 2 },
+                { q: "Semasa guling belakang, apakah fungsi tangan?", o: ["Memegang lutut", "Menolak badan dan membantu gulingan", "Melambai"], a: 1 },
+                { q: "Untuk melakukan gulingan yang lancar, bentuk badan mestilah...", o: ["Dibulatkan (membulat)", "Ditegakkan seperti tiang", "Dibengkokkan ke sisi"], a: 0 },
+                { q: "Mengapakah guru perlu menyokong perlakuan murid semasa imbangan songsang?", o: ["Untuk mendenda murid", "Untuk memastikan keselamatan murid", "Untuk melihat dengan jelas"], a: 1 },
+                { q: "Bolehkah kita melakukan guling depan di atas jalan tar?", o: ["Boleh jika pandai", "Tidak boleh, kerana bahaya dan tidak menyerap hentakan", "Boleh jika berhati-hati"], a: 1 }
+            ],
+            // PJ Unit 5
+            pj5: [
+                { q: "Pakaian renang yang sesuai diperbuat daripada bahan...", o: ["Kapas (Cotton)", "Sintetik dan kain lycra", "Jeans"], a: 1, img: "fa-swimmer" },
+                { q: "Mengapa bahan lycra digunakan untuk baju renang?", o: ["Sangat tebal", "Menyerap klorin dengan kuat", "Tidak menyerap klorin dan ringan dalam air"], a: 2 },
+                { q: "Apungan lentang bermaksud...", o: ["Terapung dengan muka menghadap ke udara (atas)", "Terapung meniarap", "Berdiri di dalam air"], a: 0 },
+                { q: "Semasa melakukan apungan lentang, adakah kita perlu bergerak?", o: ["Ya, mesti bergerak", "Tidak ada pergerakan, hanya bertenang", "Bergerak laju"], a: 1 },
+                { q: "Untuk bernafas dengan baik semasa apungan lentang, kita mestilah...", o: ["Menahan nafas", "Tenangkan fikiran dan jangan lupa bernafas", "Minum air kolam"], a: 1 },
+                { q: "Tendangan keribas (flutter kick) membantu kita untuk...", o: ["Berenang dengan lebih pantas", "Tenggelam", "Tidur di dalam air"], a: 0 },
+                { q: "Semasa melakukan tendangan keribas, posisi kaki mestilah...", o: ["Lurus ke belakang", "Dibengkokkan sepenuhnya pada lutut", "Disilangkan"], a: 0 },
+                { q: "Pergerakan kaki semasa tendangan keribas dilakukan secara...", o: ["Serentak", "Berselang-seli (kiri dan kanan)", "Tidak bergerak"], a: 1 },
+                { q: "Alatan apakah yang boleh digunakan untuk berlatih tendangan keribas di kolam?", o: ["Pelampung lengan", "Papan keribas (Kickboard)", "Tayar kereta"], a: 1 },
+                { q: "Apakah peraturan keselamatan di kolam renang?", o: ["Boleh berlari di tepi kolam", "Tidak dibenarkan berlari di kawasan kolam", "Boleh makan di dalam kolam"], a: 1, img: "fa-exclamation-circle" },
+                { q: "Bolehkah kita memakai selipar semasa masuk ke dalam air kolam renang?", o: ["Boleh", "Tidak dibenarkan", "Hanya selipar jepun dibenarkan"], a: 1 },
+                { q: "Bagaimanakah posisi badan ketika berdiri semula selepas apungan lentang?", o: ["Tarik lutut ke perut, tekan tangan ke bawah dan jejak lantai", "Terus pusing badan", "Melompat keluar dari air"], a: 0 },
+                { q: "Apa yang perlu dilakukan jika panik semasa berada di air?", o: ["Menjerit dan menangis", "Bertenang dan minta bantuan guru/penyelamat", "Pura-pura lemas"], a: 1 },
+                { q: "Sebelum masuk ke kolam renang, kita digalakkan untuk...", o: ["Mandi (shower) terlebih dahulu", "Makan makanan berat", "Berbual dengan kawan"], a: 0 },
+                { q: "Tujuan memegang tepi kolam semasa latihan tendangan keribas adalah untuk...", o: ["Mendapatkan tendangan yang betul dan stabil", "Berehat", "Membasuh tangan"], a: 0 }
+            ],
+            // PJ Unit 6
+            pj6: [
+                { q: "Dalam permainan menjejak harta karun, arah pukul 12 bermaksud...", o: ["Ke belakang", "Terus ke hadapan", "Ke kanan"], a: 1, img: "fa-compass" },
+                { q: "Jika arahan menyebut 'Bergerak ke arah pukul 3', kamu perlu bergerak ke arah...", o: ["Kanan", "Kiri", "Belakang"], a: 0 },
+                { q: "Bergerak ke arah pukul 9 bermaksud bergerak ke arah...", o: ["Kanan", "Hadapan", "Kiri"], a: 2 },
+                { q: "Permainan Teng-teng juga dikenali sebagai permainan...", o: ["Guli", "Ketingting", "Congkak"], a: 1 },
+                { q: "Dalam permainan Teng-teng, apakah kemahiran yang digunakan semasa berada di dalam petak tunggal?", o: ["Melompat dan mengimbang sebelah kaki", "Berlari pantas", "Berguling"], a: 0, img: "fa-shoe-prints" },
+                { q: "Pemain Teng-teng perlu membaling gundu ke dalam petak dengan cara...", o: ["Melihat tepat ke petak", "Membelakangkan petak (menoleh ke belakang)", "Membaling dengan kaki"], a: 1 },
+                { q: "Objek yang dibaling ke dalam petak Teng-teng dipanggil...", o: ["Guli", "Gundu", "Gasing"], a: 1 },
+                { q: "Dalam permainan Galah Panjang, apakah tugas utama pasukan penyerang?", o: ["Mengadang pemain lawan", "Mengacah dan melepasi garisan ke hujung dan kembali", "Menjaga garisan"], a: 1 },
+                { q: "Apakah tugas pasukan bertahan dalam Galah Panjang?", o: ["Mengadang dan menyentuh pemain penyerang", "Menyokong penyerang", "Berehat di luar gelanggang"], a: 0 },
+                { q: "Kemahiran apakah yang penting untuk mengelak daripada disentuh dalam Galah Panjang?", o: ["Menggelongsor dan mengacah", "Menyepak", "Merangkak"], a: 0 },
+                { q: "Apakah kemahiran lokomotor yang kerap digunakan dalam Galah Panjang?", o: ["Berjalan perlahan", "Berlari, mengelak dan menggelongsor", "Membongkok"], a: 1 },
+                { q: "Pakaian yang bagaimanakah sesuai untuk bermain Galah Panjang dan Teng-teng?", o: ["Pakaian seragam sekolah (kemeja)", "Pakaian sukan yang selesa", "Pakaian tidur"], a: 1 },
+                { q: "Permainan Teng-teng dan Galah Panjang digolongkan dalam kategori permainan...", o: ["Tradisional", "Sukan Olimpik", "Permainan video"], a: 0 },
+                { q: "Semasa bermain, kita mestilah ______ peraturan permainan.", o: ["Mengabaikan", "Mematuhi", "Mengubah"], a: 1 },
+                { q: "Kerjasama antara ahli kumpulan amat penting dalam permainan...", o: ["Teng-teng (individu)", "Galah Panjang (berpasukan)", "Lari pecut"], a: 1 }
+            ],
+            // PJ Unit 7
+            pj7: [
+                { q: "Apakah tujuan melakukan aktiviti memanaskan badan?", o: ["Untuk tidur", "Meningkatkan suhu badan, pernafasan dan kadar nadi", "Menurunkan denyutan jantung"], a: 1, img: "fa-temperature-high" },
+                { q: "Antara aktiviti berikut, yang manakah sesuai untuk memanaskan badan?", o: ["Duduk bersila", "Berlari anak, mencongklang dan melompat", "Tidur"], a: 1 },
+                { q: "Bagaimanakah cara untuk menentukan kadar nadi?", o: ["Letak dua jari di pergelangan tangan atau leher", "Letak tangan di atas kepala", "Pegang kaki kawan"], a: 0, img: "fa-heartbeat" },
+                { q: "Semasa memanaskan badan, kadar nadi kita akan...", o: ["Menurun", "Meningkat (berdegup lebih cepat)", "Tidak berubah"], a: 1 },
+                { q: "Aktiviti menyejukkan badan (cooling down) dilakukan pada waktu bila?", o: ["Sebelum aktiviti fizikal", "Semasa tidur", "Selepas aktiviti fizikal"], a: 2 },
+                { q: "Apakah kesan aktiviti menyejukkan badan?", o: ["Suhu badan, pernafasan dan kadar nadi kembali menurun (normal)", "Suhu badan makin naik", "Kadar nadi makin laju"], a: 0 },
+                { q: "Kadar pernafasan kita akan menjadi ______ selepas berlari laju.", o: ["Sangat perlahan", "Laju dan cepat", "Berhenti"], a: 1 },
+                { q: "Mengapakah kita perlu minum air semasa melakukan aktiviti fizikal?", o: ["Untuk elak mengantuk", "Mengelakkan badan mengalami kekurangan air (dehidrasi)", "Untuk kenyang"], a: 1, img: "fa-tint" },
+                { q: "Makanan seperti daging, ikan dan soya (protein) membantu...", o: ["Pertumbuhan fizikal badan", "Memberi tenaga sahaja", "Meracun badan"], a: 0 },
+                { q: "Makanan seperti nasi dan roti (karbohidrat) bertindak untuk...", o: ["Membaiki otot", "Memberikan tenaga untuk aktiviti fizikal", "Menghilangkan dahaga"], a: 1 },
+                { q: "Pakaian yang sesuai semasa melakukan aktiviti sukan membolehkan pergerakan menjadi...", o: ["Terganggu", "Lancar dan bebas", "Tersekat"], a: 1 },
+                { q: "Jika kita tidak memanaskan badan sebelum bermain bola sepak, apakah risiko yang mungkin berlaku?", o: ["Kecederaan otot atau kekejangan", "Menjadi sangat pandai", "Pakaian koyak"], a: 0 },
+                { q: "Manakah contoh aktiviti menyejukkan badan?", o: ["Lari pecut 100m", "Regangan perlahan sambil menarik nafas", "Melompat tinggi 50 kali"], a: 1 },
+                { q: "Sebelum larian, kadar nadi adalah normal. Semasa larian, kadar nadi akan...", o: ["Sama seperti sebelum", "Lebih tinggi", "Lebih rendah"], a: 1 },
+                { q: "Antara berikut, aktiviti manakah yang paling banyak meningkatkan suhu badan?", o: ["Berenang", "Berlari keliling padang", "Duduk di kerusi"], a: 1 }
+            ],
+            // PJ Unit 8
+            pj8: [
+                { q: "Senaman regangan statik dan dinamik dilakukan untuk meningkatkan...", o: ["Kelenturan (fleksibiliti)", "Kelajuan larian", "Berat badan"], a: 0, img: "fa-child" },
+                { q: "Aktiviti 'Ringkuk tubi separa' (Half sit-up) bertujuan untuk menguatkan otot...", o: ["Abdomen (perut)", "Bahu", "Betis"], a: 0 },
+                { q: "Aktiviti 'Jengkit setempat' membantu menguatkan otot...", o: ["Bahu", "Betis", "Lengan"], a: 1 },
+                { q: "Aktiviti 'Tekan tubi ubah suai' memfokuskan kepada kekuatan otot...", o: ["Tangan dan dada", "Punggung", "Pinggang"], a: 0, img: "fa-dumbbell" },
+                { q: "Senaman 'Separa cangkung' (Half squat) menguatkan otot...", o: ["Pinggang dan paha", "Leher", "Mata"], a: 0 },
+                { q: "Senaman 'Lentik belakang ubah suai' bertujuan menguatkan otot...", o: ["Belakang pinggang", "Perut depan", "Kaki"], a: 0 },
+                { q: "Kementerian Kesihatan Malaysia menyarankan kita bersenam selama _____ sehari, tiga kali seminggu.", o: ["5 minit", "30 minit", "3 jam"], a: 1 },
+                { q: "Indeks Jisim Badan (BMI) digunakan untuk menilai status...", o: ["Kekayaan keluarga", "Komposisi tubuh badan", "Ketinggian sahaja"], a: 1 },
+                { q: "Jika BMI seseorang berada dalam tahap 'Normal' (20.7 - 26.4), ini bermakna...", o: ["Badan ideal, tidak gemuk", "Sangat kurus", "Obesiti bahaya"], a: 0 },
+                { q: "Jika berat badan berlebihan (Obes), seseorang itu berisiko menghidap...", o: ["Kesihatan yang baik", "Masalah kesihatan dan cepat penat", "Kelajuan bertambah"], a: 1 },
+                { q: "Muthu mengadu sakit lutut selepas berlari. Doktor mendapati berat badannya berlebihan. Apakah nasihat doktor?", o: ["Makan lebih banyak kek", "Bersenam dan menjaga pemakanan", "Tidur sepanjang hari"], a: 1, img: "fa-user-md" },
+                { q: "Apakah otot yang diregangkan apabila kita membongkok dan menyentuh hujung jari kaki?", o: ["Otot paha (hamstring)", "Otot leher", "Otot bahu"], a: 0 },
+                { q: "Regangan otot perlu ditahan (statik) selama berapa saat untuk mendapat kesan yang baik?", o: ["1 hingga 2 saat", "10 hingga 20 saat", "60 saat"], a: 1 },
+                { q: "Aktiviti bergayut pada palang dapat menguatkan otot...", o: ["Kaki", "Lengan dan bahu", "Perut"], a: 1 },
+                { q: "Jika kita tidak melakukan pemanasan badan sebelum ujian kelenturan, kita mungkin akan mengalami...", o: ["Ketawa berlebihan", "Kecederaan atau koyakan otot", "Hilang ingatan"], a: 1 }
+            ],
+            
+            // PK Unit 9
+            pk9: [
+                { q: "Bentuk tubuh semasa duduk, berdiri, berjalan, dan mengangkat barang dikenali sebagai...", o: ["Postur", "Rehat", "Tidur"], a: 0 },
+                { q: "Cara mengangkat kotak dari lantai yang BETUL ialah...", o: ["Membengkokkan pinggang sahaja", "Membengkokkan lutut (cangkung) dan badan ditegakkan", "Menarik kotak dengan satu tangan"], a: 1, img: "fa-box" },
+                { q: "Cara berdiri yang BETUL ialah...", o: ["Membongkokkan badan ke depan", "Berdiri tegak", "Bersandar pada dinding berterusan"], a: 1 },
+                { q: "Tidur dan rehat yang cukup sangat penting untuk...", o: ["Tumbesaran fizikal yang sempurna dan cergas", "Menjadi cepat tua", "Membuat kita malas"], a: 0, img: "fa-bed" },
+                { q: "Sentuhan yang membuatkan kamu marah, sedih, atau keliru dipanggil...", o: ["Sentuhan selamat", "Sentuhan tidak selamat", "Sentuhan ajaib"], a: 1 },
+                { q: "Jika orang yang tidak dikenali cuba menyentuh kamu, apakah tindakan yang mesti kamu buat?", o: ["Berdiam diri", "Katakan 'TIDAK!' dan larikan diri kepada orang dewasa yang dipercayai", "Senyum sahaja"], a: 1 },
+                { q: "Tembakau dalam rokok boleh menyebabkan penyakit...", o: ["Sakit lutut", "Kanser paru-paru dan jantung", "Gatal kulit"], a: 1, img: "fa-smoking-ban" },
+                { q: "Bahan kimia yang menyebabkan khayal, ketagihan dan boleh membawa maut ialah...", o: ["Dadah", "Vitamin", "Gula-gula"], a: 0 },
+                { q: "Apakah kesan asap rokok kepada orang lain yang tidak merokok?", o: ["Membantu pernafasan mereka", "Asap mengganggu dan menyebabkan risiko kanser paru-paru", "Menjadikan mereka wangi"], a: 1 },
+                { q: "Bagaimanakah cara mengatasi perasaan cemburu terhadap rakan yang berjaya mendapat tempat pertama?", o: ["Marah rakan", "Tumpang gembira, ucapkan tahniah dan jadikan motivasi", "Berhenti berkawan"], a: 1 },
+                { q: "Penyakit Konjunktivitis ialah penyakit berjangkit yang menyerang bahagian...", o: ["Kaki", "Mata (radang pada putih mata)", "Mulut"], a: 1, img: "fa-eye" },
+                { q: "Tanda-tanda Penyakit Tangan, Kaki dan Mulut (HFMD) ialah...", o: ["Rasa sakit/luka di mulut dan ruam di kaki serta tangan", "Mata berair dan gatal", "Sakit perut"], a: 0 },
+                { q: "Bagaimanakah cara mengelakkan jangkitan HFMD dan Konjunktivitis?", o: ["Berkongsi tuala dengan pesakit", "Kerap basuh tangan dengan sabun dan tidak menyentuh muka", "Bersin di hadapan orang lain"], a: 1 },
+                { q: "Jika seseorang mengajak kamu masuk ke keretanya (orang tidak dikenali), kamu mesti...", o: ["Katakan TIDAK dan segera lari menjauh", "Ikut jika dia beri gula-gula", "Tanya arah jalan"], a: 0 },
+                { q: "Ahli keluarga perlu saling ______ supaya hidup bahagia.", o: ["Bermusuhan", "Hormat-menghormati dan bantu-membantu", "Cemburu"], a: 1 }
+            ],
+            // PK Unit 10
+            pk10: [
+                { q: "Kita perlu mematuhi waktu makan yang teratur. Makanan pertama pada waktu pagi dipanggil...", o: ["Makan malam", "Minum petang", "Sarapan pagi"], a: 2, img: "fa-bread-slice" },
+                { q: "Makanan yang sesuai untuk sarapan pagi ialah...", o: ["Aiskrim dan coklat", "Bijirin, roti, susu atau nasi lemak sederhana", "Gula-gula"], a: 1 },
+                { q: "Makanan yang berlemak, minuman manis dan berkarbonat boleh menyebabkan masalah...", o: ["Obesiti (gemuk berlebihan)", "Terlalu kurus", "Mata rabun"], a: 0 },
+                { q: "Bagaimanakah cara untuk mengekalkan badan sihat dan menarik?", o: ["Makan makanan berlemak sahaja", "Makan secara sederhana mengikut keperluan, makanan seimbang dan bersenam", "Tidur selepas makan berat"], a: 1, img: "fa-apple-alt" },
+                { q: "Jika kamu melihat iklan makanan ringan di televisyen yang nampak sedap, adakah kamu patut terus membelinya?", o: ["Ya, mesti beli", "Tidak, jangan mudah terpengaruh kerana ia mungkin tidak berkhasiat", "Beli jika ada duit lebih"], a: 1 },
+                { q: "Apakah kesan buruk kerap memakan mi segera dan snek makanan ringan?", o: ["Boleh memudaratkan kesihatan kerana tinggi garam, gula dan pengawet", "Membuatkan kita lebih pandai", "Menyempurnakan diet"], a: 0 },
+                { q: "Makanan manakah yang dianggap berkhasiat?", o: ["Burger dan air berkarbonat", "Ikan kukus, sayur-sayuran dan buah-buahan", "Keropok lekor goreng dan aiskrim"], a: 1, img: "fa-carrot" },
+                { q: "Waktu makan tengah hari biasanya pada waktu...", o: ["12.00 tengah hari - 2.00 petang", "6.00 pagi", "11.00 malam"], a: 0 },
+                { q: "Adakah baik meninggalkan (skip) sarapan pagi?", o: ["Ya, untuk kurus", "Tidak, kerana ia memberi tenaga untuk memulakan hari", "Ya, jimat wang"], a: 1 },
+                { q: "Minum petang sepatutnya mengambil makanan yang...", o: ["Ringan seperti buah atau sedikit kuih", "Sangat berat seperti 2 pinggan nasi", "Tiada apa-apa"], a: 0 },
+                { q: "Mengapakah kita dinasihatkan minum air kosong berbanding minuman manis?", o: ["Lebih mahal", "Tidak mengandungi kalori gula berlebihan dan baik untuk buah pinggang", "Mempunyai gas"], a: 1 },
+                { q: "Maisarah hanya makan kuih manis setiap hari. Ini ialah amalan pemakanan yang...", o: ["Sangat sihat", "Sihat", "Tidak sihat (tidak seimbang)"], a: 2 },
+                { q: "Iklan di media massa bertujuan untuk...", o: ["Mendidik kita menjadi doktor", "Menarik minat pembeli, walaupun barang itu kurang sihat", "Menyuruh kita tidur"], a: 1, img: "fa-tv" },
+                { q: "Buah-buahan dan sayur-sayuran kaya dengan...", o: ["Lemak tepu", "Vitamin dan serat", "Gula tiruan"], a: 1 },
+                { q: "Mengapakah sayur-sayuran penting dalam menu makan malam?", o: ["Menambah warna sahaja", "Membantu penghadaman dan melawaskan buang air besar", "Membuat makanan pedas"], a: 1 }
+            ],
+            // PK Unit 11
+            pk11: [
+                { q: "Kawasan yang basah dan licin di bilik air boleh menyebabkan...", o: ["Lemas", "Terjatuh atau tergelincir", "Terbakar"], a: 1, img: "fa-bath" },
+                { q: "Apakah tindakan yang BETUL jika kamu melihat rakan cedera terjatuh dari tangga di sekolah?", o: ["Berdiam diri", "Ketawakan rakan", "Segera laporkan kepada guru atau orang dewasa"], a: 2 },
+                { q: "Jika berlaku kebakaran kecil di Bilik Sains, pihak manakah yang perlu dihubungi segera?", o: ["Polis", "Bomba (Talian 999)", "Klinik gigi"], a: 1, img: "fa-fire-extinguisher" },
+                { q: "Peralatan elektrik yang rosak dan wayar terdedah boleh mengakibatkan...", o: ["Renjatan elektrik (kebakaran)", "Hujan", "Kekenyangan"], a: 0 },
+                { q: "Jika melihat orang tersepit di eskalator (tempat awam), apakah tindakan pertama?", o: ["Menjerit meminta tolong dan tekan butang kecemasan eskalator", "Tarik mangsa dengan kuat", "Tinggalkan tempat itu"], a: 0 },
+                { q: "Siapakah yang boleh membantu kamu jika berlaku kecederaan kecil di rumah?", o: ["Rakan sekelas", "Ibu bapa atau penjaga dewasa", "Posmen"], a: 1 },
+                { q: "Apakah yang akan terjadi jika mangsa kemalangan TIDAK diberikan bantuan dengan segera?", o: ["Dia akan sembuh sendiri cepat", "Kecederaan mungkin bertambah teruk atau membahayakan nyawa", "Tiada apa-apa berlaku"], a: 1 },
+                { q: "Peti kecemasan (First Aid Kit) di sekolah biasanya disimpan di...", o: ["Kantin", "Bilik Kesihatan / Bilik Guru", "Padang"], a: 1, img: "fa-medkit" },
+                { q: "Nombor kecemasan utama di Malaysia untuk memanggil Ambulans, Polis atau Bomba ialah...", o: ["999", "123", "911"], a: 0 },
+                { q: "Semasa melintas jalan di tempat awam, kita mesti menggunakan...", o: ["Tengah-tengah jalan raya", "Jejantas atau lintasan belang (Zebra crossing)", "Longkang"], a: 1 },
+                { q: "Mengapakah kita dilarang berlari di kantin sekolah?", o: ["Boleh melanggar murid lain yang membawa makanan panas", "Boleh jadi juara", "Untuk mempercepatkan masa rehat"], a: 0 },
+                { q: "Jika kawan kamu luka berdarah, jangan sekali-kali...", o: ["Memberitahu guru", "Menyentuh darahnya dengan tangan kosong (elak jangkitan)", "Membawanya ke bilik rawatan"], a: 1 },
+                { q: "Di taman permainan, alatan yang berkarat dan patah adalah...", o: ["Selamat digunakan", "Bahaya dan boleh menyebabkan luka tetanus", "Sangat seronok"], a: 1 },
+                { q: "Jika kamu ternampak paku tajam di atas lantai kelas, kamu patut...", o: ["Pijak paku itu", "Biarkan sahaja", "Maklumkan guru atau kutip buang ke dalam tong sampah berhati-hati"], a: 2 },
+                { q: "Langkah keselamatan terbaik sebelum berenang di kolam renang awam ialah...", o: ["Memastikan ada pengawal keselamatan (Lifeguard) bertugas", "Makan gula-gula", "Membawa kucing"], a: 0 }
+            ]
+        };
+
+        // Peperiksaan (30 soalan campuran PJ & PK) x 2 Set
+        const EXAMS = {
+            set1: [
+                { q: "Zarith bergerak menyusup. Postur badannya mestilah...", o: ["Tegak", "Direndahkan", "Melentik"], a: 1 },
+                { q: "Tindakan bergerak pada tempo laju bermaksud bergerak dengan...", o: ["Perlahan", "Pantas", "Sederhana"], a: 1 },
+                { q: "Pergerakan 'Mencongklang' ialah jenis pergerakan...", o: ["Bukan lokomotor", "Lokomotor", "Akuatik"], a: 1 },
+                { q: "Apabila mendarat selepas melompat, lutut perlulah...", o: ["Diluruskan", "Difleksikan (bengkok sikit)", "Diketatkan"], a: 1 },
+                { q: "Semasa menghantar bola jauh, daya yang digunakan mestilah...", o: ["Sedikit", "Sederhana", "Kuat"], a: 2 },
+                { q: "Dalam pergerakan berirama, tempo perlahan memerlukan kita bergerak dengan...", o: ["Laju", "Lambat", "Berhenti"], a: 1 },
+                { q: "Alatan yang sesuai sebagai prop senamrobik ialah...", o: ["Batu", "Reben dan gelung", "Kerusi"], a: 1 },
+                { q: "Imbangan songsang bermaksud kepala di...", o: ["Atas", "Sisi", "Bawah"], a: 2 },
+                { q: "Guling belakang perlu dilakukan dengan bentuk badan yang...", o: ["Memanjang", "Bulat", "Lurus"], a: 1 },
+                { q: "Semasa tendangan keribas di air, lutut...", o: ["Dilipat sepenuhnya", "Tidak terlalu bengkok (hampir lurus)", "Disilangkan"], a: 1 },
+                { q: "Permainan Galah Panjang memerlukan kemahiran...", o: ["Mengadang dan mengacah", "Menendang", "Berenang"], a: 0 },
+                { q: "Memanaskan badan akan menyebabkan kadar nadi...", o: ["Meningkat", "Menurun", "Sama"], a: 0 },
+                { q: "Makanan yang memberi tenaga ialah...", o: ["Buah-buahan", "Daging", "Nasi dan roti"], a: 2 },
+                { q: "Regangan ditahan selama 10-20 saat untuk meningkatkan...", o: ["Kekuatan", "Kelenturan", "Kelajuan"], a: 1 },
+                { q: "BMI normal bermaksud...", o: ["Terlalu kurus", "Berat badan ideal", "Berat badan berlebihan"], a: 1 },
+                { q: "Postur ialah bentuk tubuh semasa...", o: ["Tidur sahaja", "Duduk, berdiri dan berjalan", "Makan sahaja"], a: 1 },
+                { q: "Tidur yang cukup penting untuk...", o: ["Kepenatan", "Tumbesaran fizikal", "Jadi lapar"], a: 1 },
+                { q: "Sentuhan pada tubuh yang membuatkan kita rasa marah/sedih ialah sentuhan...", o: ["Selamat", "Selesa", "Tidak selamat/Tidak selesa"], a: 2 },
+                { q: "Tembakau dalam rokok berbahaya kepada...", o: ["Tulang", "Paru-paru dan Jantung", "Mata"], a: 1 },
+                { q: "Dadah adalah bahan terlarang yang boleh membawa maut.", o: ["Benar", "Salah", "Tidak Pasti"], a: 0 },
+                { q: "Penyakit Konjunktivitis menyerang bahagian...", o: ["Kaki", "Mulut", "Mata"], a: 2 },
+                { q: "Penyakit HFMD (Tangan Kaki Mulut) menyebabkan ruam di...", o: ["Kepala", "Kaki, tangan dan sekitar mulut", "Perut"], a: 1 },
+                { q: "Apakah tindakan jika diajak oleh orang tidak dikenali?", o: ["Ikut sahaja", "Katakan TIDAK", "Minta wang daripadanya"], a: 1 },
+                { q: "Sarapan pagi sepatutnya mengambil makanan yang...", o: ["Berkhasiat", "Banyak lemak", "Sangat pedas"], a: 0 },
+                { q: "Makanan ringan dan air berkarbonat boleh menyebabkan...", o: ["Kurus", "Obesiti (gemuk)", "Pandai"], a: 1 },
+                { q: "Kita mesti mematuhi waktu makan.", o: ["Betul", "Salah", "Tidak Pasti"], a: 0 },
+                { q: "Jika berlaku kecederaan ringan di sekolah, lapor kepada...", o: ["Guru", "Polis", "Kawan sahaja"], a: 0 },
+                { q: "Talian kecemasan di Malaysia ialah...", o: ["911", "999", "994"], a: 1 },
+                { q: "Melintas jalan raya dengan selamat mesti menggunakan...", o: ["Lorong tikus", "Jejantas / Lintasan pejalan kaki", "Longkang"], a: 1 },
+                { q: "Bermain di kawasan licin berisiko menyebabkan...", o: ["Tergelincir", "Kenyang", "Kurus"], a: 0 }
+            ],
+            set2: [
+                { q: "Ruang yang sempit memerlukan kita bergerak dengan...", o: ["Cepat", "Melompat tinggi", "Merendahkan badan"], a: 2 },
+                { q: "Pergerakan 'Membongkok' adalah pergerakan...", o: ["Lokomotor", "Bukan Lokomotor", "Senamrobik"], a: 1 },
+                { q: "Titik kontak menendang bola leret ialah di bahagian...", o: ["Tengah bola", "Atas bola", "Bawah bola"], a: 0 },
+                { q: "Prop kain dan reben sesuai untuk aktiviti...", o: ["Lari pecut", "Pergerakan Berirama", "Renang"], a: 1 },
+                { q: "Zirafah bergerak menegak. Buaya bergerak...", o: ["Mendatar", "Melompat", "Menegak"], a: 0 },
+                { q: "Guling sisi memerlukan bahagian badan mana menyentuh tilam?", o: ["Kepala (ubun-ubun)", "Muka", "Belakang badan / Sisi"], a: 2 },
+                { q: "Pakaian renang diperbuat daripada lycra kerana ia...", o: ["Menyerap air", "Berat", "Ringan dan tidak serap klorin"], a: 2 },
+                { q: "Bernafas adalah dilarang semasa apungan lentang.", o: ["Betul", "Salah (Mesti terus bernafas)", "Tidak Pasti"], a: 1 },
+                { q: "Permainan Teng-teng dipanggil juga...", o: ["Catur", "Ketingting", "Galah Panjang"], a: 1 },
+                { q: "Bergerak pukul 3 bermaksud bergerak ke arah...", o: ["Depan", "Kanan", "Kiri"], a: 1 },
+                { q: "Menyejukkan badan dilakukan...", o: ["Sebelum senaman", "Semasa tidur", "Selepas senaman"], a: 2 },
+                { q: "Untuk membina otot perut (abdomen), kita boleh lakukan senaman...", o: ["Lompat bintang", "Ringkuk tubi separa", "Jengkit setempat"], a: 1 },
+                { q: "Bersenam menjadikan badan cergas. Berapa kali seminggu disarankan?", o: ["1 kali", "3 kali", "7 kali"], a: 1 },
+                { q: "Semasa duduk membaca, badan mestilah...", o: ["Membongkok", "Tegak", "Menyandar terlalu rendah"], a: 1 },
+                { q: "Bantuan awal di sekolah boleh didapati daripada...", o: ["Peti Kecemasan", "Buku Teks", "Papan Hitam"], a: 0 },
+                { q: "Penyakit Konjunktivitis mudah berjangkit melalui...", o: ["Melihat dari jauh", "Bersentuhan dengan pesakit", "Bunyi"], a: 1 },
+                { q: "Sayur-sayuran dan buah-buahan membantu...", o: ["Merosakkan gigi", "Sistem penghadaman", "Mabuk"], a: 1 },
+                { q: "Asap rokok membahayakan orang sekeliling.", o: ["Betul", "Salah", "Tidak Pasti"], a: 0 },
+                { q: "Alkohol ialah minuman memabukkan yang merosakkan...", o: ["Kuku", "Otak dan Usus", "Rambut"], a: 1 },
+                { q: "Tindakan jika rasa cemburu akan kejayaan kawan:", o: ["Marah", "Diam", "Ucap tahniah dan positif"], a: 2 },
+                { q: "Tanda penyakit HFMD:", o: ["Mata merah", "Ruam tangan, kaki, luka mulut", "Sakit sendi"], a: 1 },
+                { q: "Tidak bergaul dengan pesakit HFMD adalah cara pencegahan.", o: ["Salah", "Betul", "Tidak Pasti"], a: 1 },
+                { q: "Iklan makanan manis di TV mesti kita...", o: ["Beli segera", "Abaikan dan kaji khasiatnya", "Kongsi kawan"], a: 1 },
+                { q: "Waktu makan sebelum tidur dinamakan...", o: ["Sarapan", "Makan tengah hari", "Makan malam"], a: 2 },
+                { q: "Minum air penting untuk mengelakkan badan menjadi...", o: ["Kurus", "Dehidrasi (kurang air)", "Laju"], a: 1 },
+                { q: "Penyalahgunaan dadah membebankan keluarga.", o: ["Betul", "Salah", "Tidak Pasti"], a: 0 },
+                { q: "Kemalangan akibat lantai licin biasa berlaku di...", o: ["Bilik air / Tandas", "Katil", "Sofa"], a: 0 },
+                { q: "Alatan elektrik yang rosak boleh mengundang bahaya...", o: ["Renjatan elektrik", "Lemas", "Sejuk"], a: 0 },
+                { q: "Bantuan bomba diperlukan apabila ada...", o: ["Jalan jem", "Kebakaran", "Sakit gigi"], a: 1 },
+                { q: "Luka berdarah perlu diletakkan balutan bersih untuk elak...", o: ["Kenyang", "Jangkitan kuman", "Cepat kering"], a: 1 }
+            ]
+        };
+
+        
+        let state = {
+            stars: parseInt(localStorage.getItem('pjpk2_stars')) || 0,
+            badges: JSON.parse(localStorage.getItem('pjpk2_badges')) || [],
+            history: [], // For navigation stack
+            currentUnit: null,
+            quizQuestions: [],
+            currentQIndex: 0,
+            score: 0,
+            examMode: false,
+            examTimer: null,
+            timeRemaining: 1800 // 30 minutes in seconds
+        };
+
+        // Format initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStarDisplay();
+            renderSubjectUnits('PJ'); // Pre-render to memory
+            renderSubjectUnits('PK');
+            generateBadgesGrid();
+            
+            // Audio Effects
+            window.sfxCorrect = new Audio('data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq'); // Placeholder silent
+            window.sfxWrong = new Audio('data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq'); // Placeholder silent
+        });
+
+        // Navigation Functions
+        function showView(viewId) {
+            const views = ['menuView', 'subjectView', 'unitDetailView', 'quizView', 'resultView', 'interactiveGameView', 'reportView'];
+            views.forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            document.getElementById('resultReward').classList.add('hidden');
+            
+            // Header visibility
+            if(viewId === 'menuView') {
+                document.getElementById('backBtn').classList.add('hidden');
+                document.getElementById('headerTitle').textContent = "PJPK Tahun 2";
+            } else {
+                document.getElementById('backBtn').classList.remove('hidden');
+            }
+
+            // Report card specific
+            if(viewId === 'reportView') {
+                generateBadgesGrid();
+                document.getElementById('totalStarsReport').textContent = state.stars;
+                document.getElementById('completedModules').textContent = state.badges.length;
+            }
+        }
+
+        function pushHistory(viewId) {
+            state.history.push(viewId);
+        }
+
+        function goBack() {
+            if (state.examMode && state.examTimer) {
+                clearInterval(state.examTimer);
+                state.examMode = false;
+            }
+            if (state.history.length > 0) {
+                let prev = state.history.pop();
+                showView(prev);
+            } else {
+                showView('menuView');
+            }
+        }
+
+        function updateStarDisplay() {
+            document.getElementById('starCount').textContent = state.stars;
+            localStorage.setItem('pjpk2_stars', state.stars);
+        }
+
+        function openSubject(type) {
+            pushHistory('menuView');
+            renderSubjectUnits(type);
+            document.getElementById('subjectTitle').textContent = type === 'PJ' ? 'Pendidikan Jasmani' : 'Pendidikan Kesihatan';
+            document.getElementById('headerTitle').textContent = type === 'PJ' ? 'Pendidikan Jasmani' : 'Pend. Kesihatan';
+            showView('subjectView');
+        }
+
+        function renderSubjectUnits(type) {
+            const grid = document.getElementById('unitsGrid');
+            grid.innerHTML = '';
+            
+            const units = PJPK_DATA.units.filter(u => u.type === type);
+            units.forEach(unit => {
+                const isCompleted = state.badges.includes(unit.id);
+                const badgeHtml = isCompleted ? `<div class="absolute -top-3 -right-3 bg-yellow-400 text-white w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-md"><i class="fas fa-check"></i></div>` : '';
+                
+                const html = `
+                    <button onclick="openUnitDetail('${unit.id}')" class="relative bg-white rounded-2xl p-5 shadow hover:shadow-md hover:-translate-y-1 transition text-left flex flex-col gap-2 border-2 border-transparent hover:border-blue-400">
+                        ${badgeHtml}
+                        <div class="bg-blue-100 text-blue-600 w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-2">
+                            <i class="fas ${unit.icon}"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800">${unit.title}</h3>
+                        <p class="text-sm text-slate-500 line-clamp-2">${unit.desc}</p>
+                    </button>
+                `;
+                grid.innerHTML += html;
+            });
+        }
+
+        function openUnitDetail(unitId) {
+            state.currentUnit = PJPK_DATA.units.find(u => u.id === unitId);
+            pushHistory('subjectView');
+            
+            document.getElementById('unitDetailIcon').innerHTML = `<i class="fas ${state.currentUnit.icon}"></i>`;
+            document.getElementById('unitDetailTitle').textContent = state.currentUnit.title;
+            document.getElementById('unitDetailDesc').textContent = state.currentUnit.desc;
+            document.getElementById('headerTitle').textContent = state.currentUnit.title;
+            
+            showView('unitDetailView');
+        }
+
+        function openExams() {
+            pushHistory('menuView');
+            document.getElementById('subjectTitle').textContent = 'Peperiksaan Akhir (30 Soalan)';
+            document.getElementById('headerTitle').textContent = 'Peperiksaan';
+            
+            const grid = document.getElementById('unitsGrid');
+            grid.innerHTML = `
+                <button onclick="startExam('set1')" class="relative bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition flex flex-col items-center gap-4 text-center border-b-4 border-red-500">
+                    <div class="bg-red-100 text-red-600 w-20 h-20 rounded-full flex items-center justify-center text-4xl">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h3 class="font-black text-2xl text-slate-800">Set Peperiksaan 1</h3>
+                    <p class="text-sm text-slate-500 font-bold">30 Soalan • 30 Minit</p>
+                </button>
+                <button onclick="startExam('set2')" class="relative bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition flex flex-col items-center gap-4 text-center border-b-4 border-purple-500">
+                    <div class="bg-purple-100 text-purple-600 w-20 h-20 rounded-full flex items-center justify-center text-4xl">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h3 class="font-black text-2xl text-slate-800">Set Peperiksaan 2</h3>
+                    <p class="text-sm text-slate-500 font-bold">30 Soalan • 30 Minit</p>
+                </button>
+            `;
+            showView('subjectView');
+        }
+
+        function startQuiz() {
+            state.examMode = false;
+            document.getElementById('examTimerContainer').classList.add('hidden');
+            
+            if(!QUESTIONS[state.currentUnit.id]) {
+                showModal('Maaf', 'Soalan untuk unit ini sedang dikemas kini.', 'fa-tools');
+                return;
+            }
+            
+            // Shallow copy and shuffle
+            state.quizQuestions = [...QUESTIONS[state.currentUnit.id]].sort(() => Math.random() - 0.5);
+            state.currentQIndex = 0;
+            state.score = 0;
+            
+            pushHistory('unitDetailView');
+            document.getElementById('qTotal').textContent = state.quizQuestions.length;
+            renderQuestion();
+            showView('quizView');
+        }
+
+        function startExam(setId) {
+            state.examMode = true;
+            state.timeRemaining = 1800; // 30 mins
+            state.currentUnit = { id: setId, title: "Peperiksaan " + (setId==='set1'?'1':'2') };
+            
+            state.quizQuestions = [...EXAMS[setId]].sort(() => Math.random() - 0.5);
+            state.currentQIndex = 0;
+            state.score = 0;
+
+            pushHistory('subjectView');
+            document.getElementById('examTimerContainer').classList.remove('hidden');
+            document.getElementById('qTotal').textContent = state.quizQuestions.length;
+            
+            updateTimerDisplay();
+            state.examTimer = setInterval(() => {
+                state.timeRemaining--;
+                updateTimerDisplay();
+                if(state.timeRemaining <= 0) {
+                    clearInterval(state.examTimer);
+                    endQuiz();
+                }
+            }, 1000);
+
+            renderQuestion();
+            showView('quizView');
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(state.timeRemaining / 60).toString().padStart(2, '0');
+            let s = (state.timeRemaining % 60).toString().padStart(2, '0');
+            document.getElementById('examTimer').textContent = `${m}:${s}`;
+        }
+
+        function renderQuestion() {
+            const q = state.quizQuestions[state.currentQIndex];
+            document.getElementById('qCurrent').textContent = state.currentQIndex + 1;
+            document.getElementById('qText').textContent = q.q;
+            
+            const ill = document.getElementById('qIllustration');
+            if(q.img) {
+                ill.classList.remove('hidden');
+                ill.innerHTML = `<i class="fas ${q.img}"></i>`;
+            } else {
+                ill.classList.add('hidden');
+            }
+
+            const optionsContainer = document.getElementById('qOptions');
+            optionsContainer.innerHTML = '';
+            
+            q.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 text-slate-700 font-bold p-4 rounded-2xl transition text-lg btn focus:outline-none';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIndex, btnElement) {
+            const q = state.quizQuestions[state.currentQIndex];
+            const isCorrect = selectedIndex === q.a;
+            
+            // Disable all buttons
+            const buttons = document.getElementById('qOptions').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btnElement.classList.remove('bg-blue-50', 'border-blue-200');
+                btnElement.classList.add('bg-green-500', 'text-white', 'border-green-600', 'pulse');
+                btnElement.innerHTML += ' <i class="fas fa-check-circle float-right mt-1"></i>';
+                state.score++;
+                // play sfx (safely ignored if no interaction)
+            } else {
+                btnElement.classList.remove('bg-blue-50', 'border-blue-200');
+                btnElement.classList.add('bg-red-500', 'text-white', 'border-red-600');
+                btnElement.innerHTML += ' <i class="fas fa-times-circle float-right mt-1"></i>';
+                
+                // Highlight correct
+                buttons[q.a].classList.remove('bg-blue-50', 'border-blue-200');
+                buttons[q.a].classList.add('bg-green-200', 'border-green-400', 'text-green-800');
+            }
+
+            setTimeout(() => {
+                state.currentQIndex++;
+                if (state.currentQIndex < state.quizQuestions.length) {
+                    renderQuestion();
+                } else {
+                    endQuiz();
+                }
+            }, 1200);
+        }
+
+        function endQuiz() {
+            if(state.examTimer) clearInterval(state.examTimer);
+            
+            const total = state.quizQuestions.length;
+            const percentage = (state.score / total) * 100;
+            
+            document.getElementById('resultScore').textContent = `${state.score} / ${total}`;
+            
+            let icon, title;
+            if(percentage >= 80) {
+                icon = '<i class="fas fa-trophy text-yellow-500 bounce"></i>';
+                title = 'Cemerlang!';
+            } else if(percentage >= 50) {
+                icon = '<i class="fas fa-thumbs-up text-blue-500"></i>';
+                title = 'Bagus!';
+            } else {
+                icon = '<i class="fas fa-star-half-alt text-orange-500"></i>';
+                title = 'Cuba Lagi!';
+            }
+            
+            document.getElementById('resultIcon').innerHTML = icon;
+            document.getElementById('resultTitle').textContent = title;
+            
+            // Reward Logic (Not for exam)
+            if(!state.examMode && percentage >= 80) {
+                let starsWon = 3;
+                state.stars += starsWon;
+                updateStarDisplay();
+                document.getElementById('rewardStars').textContent = starsWon;
+                document.getElementById('resultReward').classList.remove('hidden');
+                
+                // Award badge if not already owned
+                if(!state.badges.includes(state.currentUnit.id)) {
+                    state.badges.push(state.currentUnit.id);
+                    localStorage.setItem('pjpk2_badges', JSON.stringify(state.badges));
+                }
+            }
+
+            showView('resultView');
+        }
+
+        function startGame() {
+            pushHistory('unitDetailView');
+            // A simple tap-to-match generic game template
+            const gameData = getInteractiveGameData(state.currentUnit.id);
+            if(!gameData) {
+                showModal('Maaf', 'Permainan untuk unit ini sedang dibina.', 'fa-tools');
+                goBack();
+                return;
+            }
+
+            document.getElementById('gameTitle').textContent = gameData.title;
+            document.getElementById('gameInstructions').textContent = gameData.instructions;
+            document.getElementById('gameComplete').classList.add('hidden');
+
+            const itemsContainer = document.getElementById('gameItems');
+            const targetsContainer = document.getElementById('gameTargets');
+            itemsContainer.innerHTML = '';
+            targetsContainer.innerHTML = '';
+
+            let matchedCount = 0;
+            let selectedItem = null;
+
+            // Render Targets
+            gameData.targets.forEach(t => {
+                const targetDiv = document.createElement('div');
+                targetDiv.className = 'w-full bg-slate-100 border-4 border-dashed border-slate-300 rounded-xl p-4 flex flex-col items-center justify-center min-h-[100px] drop-zone';
+                targetDiv.innerHTML = `<h4 class="font-bold text-slate-700 text-xl">${t.name}</h4><div class="mt-2 flex flex-wrap gap-2 justify-center target-slot"></div>`;
+                
+                targetDiv.onclick = () => {
+                    if(!selectedItem) return;
+                    if(selectedItem.dataset.target === t.id) {
+                        // Match success
+                        targetDiv.querySelector('.target-slot').appendChild(selectedItem);
+                        selectedItem.classList.remove('ring-4', 'ring-blue-500');
+                        selectedItem.classList.add('bg-green-100', 'border-green-400');
+                        selectedItem.onclick = null; // Disable clicking again
+                        selectedItem = null;
+                        matchedCount++;
+                        targetDiv.classList.add('bg-green-50', 'border-green-400');
+                        setTimeout(()=>targetDiv.classList.remove('bg-green-50', 'border-green-400'), 500);
+                        
+                        if(matchedCount === gameData.items.length) {
+                            document.getElementById('gameComplete').classList.remove('hidden');
+                            state.stars += 2;
+                            updateStarDisplay();
+                        }
+                    } else {
+                        // Match fail
+                        targetDiv.classList.add('bg-red-50', 'border-red-400');
+                        setTimeout(()=>targetDiv.classList.remove('bg-red-50', 'border-red-400'), 500);
+                    }
+                };
+                targetsContainer.appendChild(targetDiv);
+            });
+
+            // Render Items (Shuffled)
+            const shuffledItems = [...gameData.items].sort(() => Math.random() - 0.5);
+            shuffledItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bg-white p-3 rounded-lg shadow border-2 border-slate-200 font-bold text-slate-800 cursor-pointer select-none transition hover:scale-105';
+                itemDiv.dataset.target = item.targetId;
+                itemDiv.innerHTML = item.icon ? `<i class="fas ${item.icon} mr-2"></i>${item.text}` : item.text;
+                
+                itemDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    if(itemDiv.parentElement.classList.contains('target-slot')) return;
+                    
+                    // Deselect previous
+                    if(selectedItem) selectedItem.classList.remove('ring-4', 'ring-blue-500', 'scale-110');
+                    
+                    // Select new
+                    selectedItem = itemDiv;
+                    itemDiv.classList.add('ring-4', 'ring-blue-500', 'scale-110');
+                };
+                itemsContainer.appendChild(itemDiv);
+            });
+
+            showView('interactiveGameView');
+        }
+
+        function getInteractiveGameData(unitId) {
+            // Simplified sample game data based on unit
+            const games = {
+                'pj1': {
+                    title: 'Kelajuan Tempo',
+                    instructions: 'Ketik pergerakan/haiwan, kemudian ketik pada tempo yang betul.',
+                    targets: [{id: 'laju', name: 'Tempo Laju'}, {id: 'perlahan', name: 'Tempo Perlahan'}],
+                    items: [
+                        {text: 'Kuda Berlari', targetId: 'laju', icon: 'fa-horse'},
+                        {text: 'Kura-kura', targetId: 'perlahan', icon: 'fa-bug'},
+                        {text: 'Pecut 100m', targetId: 'laju', icon: 'fa-running'},
+                        {text: 'Siput Babi', targetId: 'perlahan', icon: 'fa-leaf'}
+                    ]
+                },
+                'pj2': {
+                    title: 'Asingkan Pergerakan',
+                    instructions: 'Ketik pada kad tindakan, kemudian ketik pada kumpulan yang betul.',
+                    targets: [{id: 'loko', name: 'Lokomotor'}, {id: 'bukan', name: 'Bukan Lokomotor'}],
+                    items: [
+                        {text: 'Berlari', targetId: 'loko', icon: 'fa-running'},
+                        {text: 'Mencongklang', targetId: 'loko', icon: 'fa-horse'},
+                        {text: 'Membongkok', targetId: 'bukan', icon: 'fa-child'},
+                        {text: 'Mengilas', targetId: 'bukan', icon: 'fa-undo'}
+                    ]
+                },
+                'pj3': {
+                    title: 'Kenali Elemen Senamrobik',
+                    instructions: 'Ketik pada objek, tentukan sama ada ia "Prop (Alatan)" atau "Pergerakan".',
+                    targets: [{id: 'prop', name: 'Prop (Alatan)'}, {id: 'gerak', name: 'Pergerakan'}],
+                    items: [
+                        {text: 'Gelung Rotan', targetId: 'prop', icon: 'fa-circle-notch'},
+                        {text: 'Melompat', targetId: 'gerak', icon: 'fa-child'},
+                        {text: 'Reben', targetId: 'prop', icon: 'fa-ribbon'},
+                        {text: 'Menghayun Tangan', targetId: 'gerak', icon: 'fa-hand-paper'}
+                    ]
+                },
+                'pj4': {
+                    title: 'Gimnastik & Sarkas',
+                    instructions: 'Asingkan aktiviti gimnastik ke dalam kumpulan yang betul.',
+                    targets: [{id: 'imbang', name: 'Imbangan'}, {id: 'guling', name: 'Gulingan'}],
+                    items: [
+                        {text: 'Dirian Bangau', targetId: 'imbang', icon: 'fa-male'},
+                        {text: 'Guling Depan', targetId: 'guling', icon: 'fa-sync-alt'},
+                        {text: 'Imbangan Songsang', targetId: 'imbang', icon: 'fa-child'},
+                        {text: 'Guling Belakang', targetId: 'guling', icon: 'fa-undo'}
+                    ]
+                },
+                'pj5': {
+                    title: 'Keselamatan & Renang',
+                    instructions: 'Pilih kenyataan yang betul berkaitan aktiviti akuatik.',
+                    targets: [{id: 'selamat', name: 'Peraturan Kolam'}, {id: 'kemahiran', name: 'Kemahiran Renang'}],
+                    items: [
+                        {text: 'Jangan Berlari', targetId: 'selamat', icon: 'fa-ban'},
+                        {text: 'Apungan Lentang', targetId: 'kemahiran', icon: 'fa-swimmer'},
+                        {text: 'Pakai Baju Lycra', targetId: 'selamat', icon: 'fa-tshirt'},
+                        {text: 'Tendangan Keribas', targetId: 'kemahiran', icon: 'fa-water'}
+                    ]
+                },
+                'pj6': {
+                    title: 'Permainan Tradisional',
+                    instructions: 'Asingkan elemen permainan mengikut jenis permainan.',
+                    targets: [{id: 'teng', name: 'Teng-teng'}, {id: 'galah', name: 'Galah Panjang'}],
+                    items: [
+                        {text: 'Baling Gundu', targetId: 'teng', icon: 'fa-bullseye'},
+                        {text: 'Mengadang', targetId: 'galah', icon: 'fa-hands'},
+                        {text: 'Lompat Satu Kaki', targetId: 'teng', icon: 'fa-shoe-prints'},
+                        {text: 'Penyerang', targetId: 'galah', icon: 'fa-users'}
+                    ]
+                },
+                'pj7': {
+                    title: 'Pemanasan & Penyejukan',
+                    instructions: 'Adakah kesan ini berlaku semasa memanaskan atau menyejukkan badan?',
+                    targets: [{id: 'panas', name: 'Memanaskan Badan'}, {id: 'sejuk', name: 'Menyejukkan Badan'}],
+                    items: [
+                        {text: 'Nadi Makin Laju', targetId: 'panas', icon: 'fa-heartbeat'},
+                        {text: 'Nadi Turun Normal', targetId: 'sejuk', icon: 'fa-heart'},
+                        {text: 'Suhu Badan Naik', targetId: 'panas', icon: 'fa-temperature-high'},
+                        {text: 'Regangan Perlahan', targetId: 'sejuk', icon: 'fa-child'}
+                    ]
+                },
+                'pj8': {
+                    title: 'Kekuatan Otot',
+                    instructions: 'Senaman ini memfokuskan otot di bahagian mana?',
+                    targets: [{id: 'atas', name: 'Tangan / Bahu'}, {id: 'bawah', name: 'Kaki / Perut'}],
+                    items: [
+                        {text: 'Tekan Tubi', targetId: 'atas', icon: 'fa-dumbbell'},
+                        {text: 'Jengkit Setempat', targetId: 'bawah', icon: 'fa-shoe-prints'},
+                        {text: 'Bergayut Palang', targetId: 'atas', icon: 'fa-hand-rock'},
+                        {text: 'Ringkuk Tubi', targetId: 'bawah', icon: 'fa-male'}
+                    ]
+                },
+                'pk9': {
+                    title: 'Kenali Sentuhan',
+                    instructions: 'Tentukan jenis sentuhan ini. Adakah ia selamat atau tidak?',
+                    targets: [{id: 'ok', name: 'Sentuhan Selamat'}, {id: 'tak', name: 'Tidak Selamat'}],
+                    items: [
+                        {text: 'Salaman Ibu Bapa', targetId: 'ok', icon: 'fa-handshake'},
+                        {text: 'Disentuh Orang Asing', targetId: 'tak', icon: 'fa-user-secret'},
+                        {text: 'Ditepuk Bahu Kawan', targetId: 'ok', icon: 'fa-user-friends'},
+                        {text: 'Dipaksa Berpeluk', targetId: 'tak', icon: 'fa-ban'}
+                    ]
+                },
+                'pk10': {
+                    title: 'Pilih Makanan Sihat',
+                    instructions: 'Ketik makanan, kemudian masukkan dalam kotak yang betul.',
+                    targets: [{id: 'sihat', name: 'Berkhasiat (Sihat)'}, {id: 'tak', name: 'Tidak Berkhasiat'}],
+                    items: [
+                        {text: 'Ikan Kukus', targetId: 'sihat', icon: 'fa-fish'},
+                        {text: 'Gula-gula', targetId: 'tak', icon: 'fa-candy-cane'},
+                        {text: 'Sayur Bayam', targetId: 'sihat', icon: 'fa-leaf'},
+                        {text: 'Air Karbonat', targetId: 'tak', icon: 'fa-wine-bottle'}
+                    ]
+                },
+                'pk11': {
+                    title: 'Tindakan Selamat & Bahaya',
+                    instructions: 'Tentukan sama ada tindakan berikut selamat atau berbahaya.',
+                    targets: [{id: 'selamat', name: 'Selamat'}, {id: 'bahaya', name: 'Bahaya'}],
+                    items: [
+                        {text: 'Guna Jejantas', targetId: 'selamat', icon: 'fa-walking'},
+                        {text: 'Main Suis Elektrik', targetId: 'bahaya', icon: 'fa-bolt'},
+                        {text: 'Lapor Rakan Cedera', targetId: 'selamat', icon: 'fa-comment-medical'},
+                        {text: 'Lari di Lantai Basah', targetId: 'bahaya', icon: 'fa-water-damage'}
+                    ]
+                }
+            };
+            
+            // Fallback generic game for other units
+            return games[unitId] || {
+                title: 'Padanan Fakta',
+                instructions: 'Padankan kenyataan di bawah ke kategori yang betul.',
+                targets: [{id: 'betul', name: 'Tindakan Betul'}, {id: 'salah', name: 'Tindakan Salah'}],
+                items: [
+                    {text: 'Mendengar arahan guru', targetId: 'betul'},
+                    {text: 'Bermain benda tajam', targetId: 'salah'},
+                    {text: 'Memanaskan badan', targetId: 'betul'},
+                    {text: 'Mengejek kawan', targetId: 'salah'}
+                ]
+            };
+        }
+
+        function generateBadgesGrid() {
+            const grid = document.getElementById('badgesGrid');
+            grid.innerHTML = '';
+            
+            PJPK_DATA.units.forEach(unit => {
+                const earned = state.badges.includes(unit.id);
+                const colorClass = earned ? 'text-yellow-500' : 'text-slate-300';
+                const bgClass = earned ? 'bg-yellow-50 border-yellow-200' : 'bg-slate-50 border-slate-200';
+                
+                grid.innerHTML += `
+                    <div class="${bgClass} border-2 p-3 rounded-xl flex flex-col items-center justify-center">
+                        <i class="fas fa-medal text-4xl ${colorClass} mb-2 drop-shadow-sm"></i>
+                        <span class="text-xs font-bold text-slate-600 leading-tight">${unit.title.split(':')[0]}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function showModal(title, message, icon) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalIcon').innerHTML = `<i class="fas ${icon} text-blue-500"></i>`;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
